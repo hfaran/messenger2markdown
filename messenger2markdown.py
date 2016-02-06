@@ -12,7 +12,7 @@ class Conversation(object):
         self.monologues = monologues
 
     def __str__(self):
-        return "# {}\n{}".format(
+        return "### {}\n{}".format(
             self.time,
             "\n".join("* {}".format(str(m)) for m in self.monologues)
         )
@@ -144,6 +144,7 @@ class MessengerParse(object):
 
         return Monologue(name, msgs)
 
+
 @click.command()
 @click.option("--debug", is_flag=True)
 def main(debug):
@@ -167,7 +168,7 @@ def main(debug):
         conversations = mp.parse_text()
 
     for c in conversations:
-        print("\n\n")
+        print("\n")
         print(c)
 
 
