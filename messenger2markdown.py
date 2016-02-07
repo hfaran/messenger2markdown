@@ -84,11 +84,6 @@ class MessengerParse(object):
                 if self.next_line == "":
                     return True
 
-        # Or a date
-        date_regex = re.compile(r"^\w+ \d+(ND|TH), \d+:\d+(AM|PM)$")
-        if date_regex.match(self.line):
-            return True
-
         return False
 
     def capture_conversation(self):
@@ -103,6 +98,10 @@ class MessengerParse(object):
     @staticmethod
     def is_full_name(s):
         return re.match(r"^\w+ \w+$", s)
+
+    def is_message_date(self):
+        date_regex = re.compile(r"^\w+ \d+(ND|TH), \d+:\d+(AM|PM)$")
+        return date_regex.match(self.line)
 
     def peek_next_two_names(self):
         if self.line is None or self.next_line is None:
@@ -148,9 +147,14 @@ class MessengerParse(object):
         name = self._capture_name()
 
         msgs = []
+        # TODO: Could better architect this with hierarchical
+        #  exit conditions
         while not self.peek_next_two_names() and not self.is_time() \
                 and not self.line is None:
-            msgs.append(self.line)
+            if self.is_message_date():
+                pass  # TODO pass this time up somehow?
+            else:
+                msgs.append(self.line)
             self.index += 1
 
         return Monologue(name, msgs)
