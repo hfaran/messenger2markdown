@@ -14,7 +14,6 @@ pip install -r requirements.txt
 ## Usage
 
 * Go to Messenger.com and select your text
-    * You **must** select starting from a time such as "THU 12:58PM"
     * Copy this to your clipboard
 * Run the tool `./messenger2markdown.py`; it will automatically grab
 the text from your clipboard for you

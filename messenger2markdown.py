@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import re
+import string
 
 import click
 import clipboard
@@ -83,14 +84,19 @@ class MessengerParse(object):
                 if self.next_line == "":
                     return True
 
+        # Or a date
+        date_regex = re.compile(r"^\w+ \d+(ND|TH), \d+:\d+(AM|PM)$")
+        if date_regex.match(self.line):
+            return True
+
         return False
 
     def capture_conversation(self):
         if self.is_time():
             time = self.line
+            self.index += 2
         else:
-            raise Exception("{} is not a valid time".format(self.line))
-        self.index += 2
+            time = None
         monologues = self.capture_monologues()
         return Conversation(time, monologues)
 
@@ -118,7 +124,7 @@ class MessengerParse(object):
             monologues.append(self.capture_monologue())
         return monologues
 
-    def capture_monologue(self):
+    def _capture_name(self):
         # Handle the case where you are the one talking and there is only one
         #  name and not two
         if self.line == self.my_name.split()[0]:
@@ -126,7 +132,7 @@ class MessengerParse(object):
             name = self.my_name
         else:
             if not self.is_full_name(self.line):
-                raise Exception("{} is not a full name".format(self.line))
+                return None
             if self.line not in self.names:
                 self.names.add(self.line)
                 self.first_names.append(self.line.split()[0])
@@ -135,6 +141,11 @@ class MessengerParse(object):
             assert self.line == name.split()[0], \
                 "{} != {}".format(self.line, name.split()[0])
             self.index += 1
+
+        return name
+
+    def capture_monologue(self):
+        name = self._capture_name()
 
         msgs = []
         while not self.peek_next_two_names() and not self.is_time() \
@@ -152,7 +163,8 @@ def main(debug):
               "press RETURN to continue...")
     my_name = raw_input("What is your full name in the Facebook "
                         "conversation? ")
-    text = clipboard.paste()
+    text = filter(lambda x: x in string.printable,
+                  clipboard.paste().strip())
     if debug:
         print("Parsing the following conversation:\n<<=====>>{}\n<<=====>>"
             .format(text))
