@@ -13,7 +13,7 @@ pip install -r requirements.txt
 
 ## Usage
 
-* Go to Messenger.com and select your text
+* Go to [Messenger.com](https://messenger.com) and select your text
     * Copy this to your clipboard
 * Run the tool `./messenger2markdown.py`; it will automatically grab
 the text from your clipboard for you
